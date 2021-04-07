@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TensorFlow.js Tutorial</title>
+
+  <!-- Import TensorFlow.js -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.0.0/dist/tf.min.js"></script>
+  <!-- Import tfjs-vis -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-vis@1.0.2/dist/tfjs-vis.umd.min.js"></script>
+  <script type="module" id="script_main" src="script_main_ver2.js"></script>
+  <script type="module" id="data"></script>
+
+  <style>
+  .Btn {
+    background-color: blue;
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+  }
+
+  .Btn2 {
+    background-color: orange;
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+  }
+  </style>
+
+
+
+  <!-- Import the main script file -->
+
+
+</head>
+
+<body>
+  <h1>Machine Learning (ML) Training Tool</h1><br>
+  The number of images in the data set:
+  <br><input type="number" STYLE="color: #FFFFFF; background-color: #72A4D2;" id="myText" ><br>
+  The number of training images in the data set:
+  <br><input type="number" STYLE="color: #FFFFFF; background-color: #72A4D2;" id="number_of_training_images" ><br>
+  The number of test images in the data set:
+  <br><input type="number" STYLE="color: #FFFFFF; background-color: #72A4D2;" id="number_of_test_images" ><br>
+  The resulting image size in pixels:
+  <br><input type="number" STYLE="color: #FFFFFF; background-color: #72A4D2;" id="selected_size" >
+  <br>
+  The number of classes:
+  <br><input type="number" STYLE="color: #FFFFFF; background-color: #72A4D2;" id="number_of_classes" >
+  <br>
+  number_of_images_in_the_class:
+  <br><input type="number" id="number_of_images_in_the_class" value=100>
+  <br>
+  <p hidden>
+  Enter the starting number (example: if the first file is "image3.png", enter 3):
+  <br><input type="number" id="starting_number" value=1>
+  <br>
+  Enter the file name (example: enter "img" if your files are named like img1.png, img2.png...):
+  <br><input type="text" id="file_name" value="combined/image"><br>
+  Enter the file extension (examples: png, jpg, jpeg):
+  <br><input type="text" id="file_extension" value="jpg"><br>
+
+  Select image files that will be used in training:
+      <br><input type="file" id="loaded_image_files" onclick="loadImageFiles()" accept=".png, .jpg, .jpeg"
+      webkitdirectory multiple><br>
+    <button onclick="display_selected_images()" >Load Selected Image Files</button><br>
+
+  <button class="Btn" onclick="myFunction()">Display selected images</button><br>
+  <button class="Btn" onclick="combine()">Combine images</button><br>
+
+  <button class="Btn" onclick="reset()">Reset image selections</button><br>
+
+</p>
+  Enter the class names seperated with commas (example: classname1,classname2,classname3...):
+  <br><input type="text" id="class_names" value="class1,class2">
+  <br>
+
+  Select an Image Block File to Load:
+  		<br><input class="Btn" type="file" id="fileToLoad"><br>
+  	<button class="Btn" onclick="loadFileAsText()">Load Selected File</button><br>
+    Enter <i>batch size</i>:
+    <br><input type="number" id="batch_size_entered" value="10">
+    <br>
+    Enter a value for <i>epochs</i>:
+    <br><input type="number" id="epochs_value" value="10">
+    <br>
+    Provide a name for the model:
+    <br><input  id="model_file_name" value="my-model">
+    <br>
+
+<button hidden id="finalize_parameters" onclick="finalize_parameters()">finalize parameters</button><br>
+    <button class="Btn" id="training_started">Train the model</button>
+    <br>
+    After completing the steps above, you can try your ML model by clicking below.<br>
+    <a class="Btn2" href="predict_input_data.html">Try Your Model!</a> <br>
+<p hidden>
+  <br>Last image in the data set:<br>
+  <canvas class="result" id="output_image" height=60 width=60 ></canvas>
+<br>-------------------<br>
+
+  <br />
+
+  Selected images are displayed below:<br>
+  <div id="selected_inages_to_be_displayed"></div>
+</p>
+<br><br>
+<i>
+Copyright (2021) Erol Ozan <br>
+This tool is an open source software licensed under Apache License 2.0.
+The code is built on TensorFlow JS platform and modified the code provided by TensorFlow JS. </i>
+
+  <script>
+
+  const queryString = window.location.search;
+//console.log(queryString);
+
+const urlParams = new URLSearchParams(queryString);
+
+//try.htm?number_of_images=180&number_of_classes=3&number_of_training_images=160&selected_size=40
+
+var number_of_images = urlParams.get('number_of_images');
+//console.log("number_of_images", number_of_images);
+// shirt
+
+var number_of_classes = urlParams.get('number_of_classes');
+//console.log("number_of_classes",number_of_classes);
+// blue
+
+var number_of_training_images = urlParams.get('number_of_training_images');
+//console.log(number_of_training_images);
+var number_of_test_images = urlParams.get('number_of_test_images');
+
+var selected_size = urlParams.get('selected_size');
+
+var model_file_name = parseInt(document.getElementById("model_file_name").value);
+//console.log(selected_size);
+
+
+// empty string
+
+  //var number_of_images = 180;
+ document.getElementById("myText").value=  number_of_images;
+document.getElementById("myText").readOnly=true;
+
+  //var number_of_classes = 3;
+document.getElementById("number_of_classes").value=number_of_classes;
+document.getElementById("number_of_classes").readOnly=true;
+  //var number_of_training_images = 160;
+ document.getElementById("number_of_training_images").value=number_of_training_images ;
+ document.getElementById("number_of_test_images").value=number_of_test_images ;
+document.getElementById("number_of_training_images").readOnly=true;
+document.getElementById("number_of_test_images").readOnly=true;
+  //var selected_size = 80;
+  document.getElementById("selected_size").value=selected_size ;
+document.getElementById("selected_size").readOnly=true;
+
+  //var starting_number = 1;
+  starting_number = parseInt(document.getElementById("starting_number").value);
+
+//  var epochs_value = 10;
+  epochs_value = parseInt(document.getElementById("epochs_value").value);
+batch_size_entered = parseInt(document.getElementById("batch_size_entered").value);
+  var file_extension="jpg";
+
+  var file_name = "image";
+
+  var textFromFileLoaded = "";
+
+  var final_array = [];
+
+  var image_array = [0,1];
+  var file_names = ["",""] ;
+
+
+
+function finalize_parameters(){
+
+// document.getElementById("script_main").src = "script_main.js";
+ document.getElementById("data").src = "data_final_ver2.js";
+
+}
+
+  //var imageData=[];
+  //var combined_imageData=[];
+  //var combined_imageData2=[];
+
+
+
+
+
+  function myFunction(){
+
+  number_of_images = parseInt(document.getElementById("myText").value);
+
+  selected_size = parseInt(document.getElementById("selected_size").value);
+
+  file_name = document.getElementById("file_name").value;
+
+  file_extension = document.getElementById("file_extension").value;
+
+  starting_number = parseInt(document.getElementById("starting_number").value);
+
+  number_of_images_in_the_class= parseInt(document.getElementById("number_of_images_in_the_class").value);
+
+
+  var k;
+
+    for (k = starting_number; k < starting_number+number_of_images_in_the_class; k++){
+
+
+      var btn = document.createElement("img");
+
+       btn.src = file_name + k +"."+ file_extension;
+       btn.id=k;
+       //btn.height = selected_size;
+       //btn.width = selected_size;
+       document.body.appendChild(btn);
+    }
+
+
+  }
+
+  function display_selected_images(){
+
+  //number_of_images = file_names.length;
+
+  selected_size = parseInt(document.getElementById("selected_size").value);
+
+  //file_name = document.getElementById("file_name").value;
+
+//  file_extension = document.getElementById("file_extension").value;
+
+//  starting_number = parseInt(document.getElementById("starting_number").value);
+
+var numm = 0;
+  var k;
+//var upper_limit = number_of_images_in_the_class;
+    for (k = 0; k < file_names.length; k++){
+
+
+      var btn = document.createElement("img");
+      var idxDot = file_names[k].lastIndexOf(".") + 1;
+              var extFile = file_names[k].substr(idxDot, file_names[k].length).toLowerCase();
+              if (extFile=="jpg" || extFile=="jpeg" || extFile=="png"){
+                  //TO DO
+
+                  btn.src = file_names[k];
+                  btn.id=k+1;
+                  //btn.height = selected_size;
+                  //btn.width = selected_size;
+                  document.body.appendChild(btn);
+                  numm = numm +1;
+
+              }else{
+                  console.log("a non-image file is found in the folder");
+                  //upper_limit = upper_limit+1;
+
+              }
+
+console.log ("number of images added =", numm);
+
+
+
+
+    }
+
+
+  }
+
+
+
+
+
+
+
+
+
+  function loadFileAsText()
+  {
+  var fileToLoad = document.getElementById("fileToLoad").files[0];
+
+  	var fileReader = new FileReader();
+  	fileReader.onload = function(fileLoadedEvent)
+  	{
+  		var textFromFileLoaded = fileLoadedEvent.target.result;
+      //console.log("textFromFileLoaded");
+      //console.log(textFromFileLoaded);
+      image_array=	textFromFileLoaded.split(",");
+      console.log(image_array);
+
+  	};
+  	fileReader.readAsText(fileToLoad, "UTF-8");
+
+
+
+    }
+
+
+
+    function loadImageFiles()
+    {
+var filesInput = document.getElementById("loaded_image_files");
+
+
+
+
+
+        //var filesInput = document.getElementById("files");
+        filesInput.addEventListener("change", function(event) {
+          var files = event.target.files; //FileList object
+          //var output = document.getElementById("result");
+          for (var i = 0; i < files.length; i++) {
+            var file = files[i];
+            console.log(file.webkitRelativePath);
+            file_names[i]=file.webkitRelativePath;
+            //console.log("file", file_names[i]);
+            //console.log("file", file);
+
+          }
+        });
+
+
+
+    	/*var fileReader = new FileReader();
+    	fileReader.onload = function(fileLoadedEvent)
+    	{
+    		var textFromFileLoaded = fileLoadedEvent.target.result;
+        console.log("textFromFileLoaded");
+        console.log(textFromFileLoaded);
+        image_array=	textFromFileLoaded.split(",");
+        console.log(image_array);
+
+    	};
+    	fileReader.readAsText(fileToLoad, "UTF-8");
+*/
+
+
+      }
+
+
+
+/*
+{
+	var fileToLoad = document.getElementById("fileToLoad").files[0];
+
+	var fileReader = new FileReader();
+	fileReader.onload = function(fileLoadedEvent)
+	{
+  //  fileReader.readAsText(fileToLoad, "UTF-8");
+  //  fileReader.readAsText(fileToLoad);
+		textFromFileLoaded = fileLoadedEvent.target.result;
+    console.log("textFromFileLoaded");
+    console.log(textFromFileLoaded);
+    textFromFileLoaded = textFromFileLoaded.replace(/(\r\n|\n|\r)/gm, "");//this eliminates line breaks
+		//document.getElementById("inputTextToSave").value = textFromFileLoaded;
+    console.log("textFromFileLoaded");
+    console.log(textFromFileLoaded);
+	};
+
+  */
+
+//  fileReader.readAsText(fileToLoad);
+
+//  image_array=	textFromFileLoaded.split(',');
+
+
+  function reset(){
+
+    var j;
+    var limit = document.querySelectorAll("img").length;
+    console.log("image length)");
+    console.log(document.querySelectorAll("img").length);
+    var myobj2 = document.querySelectorAll("img");
+    for (j = 0; j < limit; j++) {
+
+  //document.querySelectorAll("img")[j].remove;
+
+  var myobj = myobj2[j];
+
+  myobj.remove();
+
+    }
+
+
+
+
+  }
+
+
+  function combine(){
+    x = document.getElementById("myText").value;
+    number_of_images = parseInt(document.getElementById("myText").value);
+    starting_number = parseInt(document.getElementById("starting_number").value);
+    number_of_classes = parseInt(document.getElementById("number_of_classes").value);
+    selected_size = parseInt(document.getElementById("selected_size").value);
+  number_of_training_images = parseInt(document.getElementById("number_of_training_images").value);
+  number_of_test_images = parseInt(document.getElementById("number_of_test_images").value);
+    y = parseInt(document.getElementById("selected_size").value);
+    selected_size = y;
+
+   var i;
+//var all_images = document.querySelectorAll("img");
+   //img.crossOrigin = '';
+   for (i = 0; i < number_of_images; i++) {
+     let resEle = document.getElementById("output_image");
+     var context = resEle.getContext("2d");
+
+
+
+     //let BtnEle = document.querySelector(".Btn");
+   //document.getElementById("myText").value;
+    // resEle.height = selected_size;
+    //   resEle.width = selected_size;
+
+  //var    image_at_hand = document.querySelectorAll("img")[i];
+  //     context.drawImage(document.querySelectorAll("img")[i],0,0,document.querySelectorAll("img")[i].width,document.querySelectorAll("img")[i].height ,0,0,selected_size,selected_size);
+
+  //var num = i+1;
+  //var id_ = num.toString();
+  console.log("**********************************");
+  //var j = parseInt(i +1);
+    var imogo = document.getElementsByTagName("img")[i];
+    console.log(imogo.src);
+    //  console.log(document.getElementsByTagName("img")[1].src);
+
+//  context.drawImage(document.getElementsByTagName("img")[1],0,0,selected_size,selected_size,0,0,selected_size,selected_size);
+
+//  context.drawImage(document.getElementsByTagName("img")[1],0,0,document.getElementsByTagName("img")[1].width,document.getElementsByTagName("img")[1].height,0,0,selected_size,selected_size);
+
+  context.drawImage(imogo,0,0,imogo.width,imogo.height,0,0,selected_size,selected_size);
+
+
+  imageData=context.getImageData(0, 0, selected_size, selected_size);
+  if (i==0){
+    final_array=Array.from(imageData.data);
+  }
+  else{
+  //console.log(imageData.data);
+  //console.log(combined_imageData);
+  //console.log(combined_imageData2.data);
+  combined_imageData2 = Array.from(imageData.data);
+
+  combined_imageData = final_array;
+
+  //combined_imageData = combined_imageData.concat(combined_imageData2);
+  final_array = combined_imageData.concat(combined_imageData2);
+  //console.log(combined_imageData);
+  }
+  console.log("looping");
+  }
+
+  //final_array=combined_imageData;
+  //image_array = final_array;
+  image_array = Array.prototype.slice.call(final_array);
+  //console.log("Array.prototype.slice.call(final_array) success");
+  console.log(image_array);
+//file save function was adapted from https://thiscouldbebetter.neocities.org/texteditor.html
+
+  var textToWrite = image_array.toString();
+  //textToWrite = textToWrite.replace(/(\r\n|\n|\r)/gm, "");//this eliminates line breaks
+  var textFileAsBlob = new Blob([textToWrite], {type:'text/plain'});
+  var fileNameToSaveAs = "image_data_file.txt";
+
+  var downloadLink = document.createElement("a");
+  downloadLink.download = fileNameToSaveAs;
+  downloadLink.innerHTML = "Download File";
+  if (window.webkitURL != null)
+  {
+    // Chrome allows the link to be clicked
+    // without actually adding it to the DOM.
+    downloadLink.href = window.webkitURL.createObjectURL(textFileAsBlob);
+  }
+  else
+  {
+    // Firefox requires the link to be added to the DOM
+    // before it can be clicked.
+    downloadLink.href = window.URL.createObjectURL(textFileAsBlob);
+    downloadLink.onclick = destroyClickedElement;
+    downloadLink.style.display = "none";
+    document.body.appendChild(downloadLink);
+  }
+
+  downloadLink.click();
+
+
+
+//  ctox.drawImage(image_array, 0, 0,100,56);
+
+  //console.log(final_array)
+  }
+  //console.log(image_array);
+
+  //console.log(combined_imageData2.data);
+  //fruits.push("Kiwi");
+  </script>
+
+</body>
+</html>

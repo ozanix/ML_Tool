@@ -1,0 +1,147 @@
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TensorFlow.js Tutorial</title>
+
+  <!-- Import TensorFlow.js -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.0.0/dist/tf.min.js"></script>
+  <!-- Import tfjs-vis -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-vis@1.0.2/dist/tfjs-vis.umd.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <style>
+  .Btn {
+    background-color: blue;
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+  }
+  </style>
+</head>
+<body>
+  <h1>Run Your Model</h1>
+    <br>
+    The purpose of this tool is to run the ML model with the images that you supply.
+    The ML model conains two files: model layout file (with extensions ".json") and model weights file (with extension ".weights.bin.").
+    You will only identify the name of the .json file below. The weights file (.weights.bin) should have the same name as the ".json" file.
+Both files need to be located in the same folder.
+    The input image file should be a single file. The single image file can contain a single image or multiple images composited into a single file.
+    <br>
+    <br>
+
+<input class="Btn" type="file"  accept="image/*" name="image" id="file"  onchange="loadFile(event)" >
+
+  <br>Select the model file (json):<br>
+  <input type="text" id="modelfile" value="my-model.json"><br>
+  Enter the number of images in the image file:
+  <br><input type="number" id="number_of_images" value=1><br>
+  Enter the image size in pixels:
+  <br><input type="number" id="selected_size" value=40><br>
+  Enter the number of classes:
+  <br><input type="number" id="number_of_classes" value=3><br>
+  <button class="Btn" type="button" onclick="run()">Run the model</button><br>
+    <p id="model_output"></p>
+
+<img id="output">
+
+
+
+
+<script>
+  var file_names ="a";
+
+  var loadFile = function(event) {
+  	image = document.getElementById('output');
+  	image.src = URL.createObjectURL(event.target.files[0]);
+
+
+  };
+
+
+  function loadImageFiles(){
+
+  file_names = document.getElementById("myfile").src;
+
+console.log(file_names);
+
+
+                console.log(file_names);
+
+
+
+      var btn = document.createElement("img");
+
+
+                  btn.src = file_names;
+                  //btn.id=1;
+                  btn.height = selected_size;
+                  btn.width = selected_size*number_of_images;
+                  document.body.appendChild(btn);
+
+
+
+  }
+
+  async function run() {
+    number_of_images = parseInt(document.getElementById("number_of_images").value);
+
+    selected_size = parseInt(document.getElementById("selected_size").value);
+modelfilename=document.getElementById('modelfile').value;
+document.getElementById("output").width = selected_size;
+document.getElementById("output").height = selected_size * number_of_images;
+//document.getElementById("image_i").src = "images/input.png";
+
+
+    const model_loaded = await tf.loadLayersModel(modelfilename);
+
+
+var myimage = document.getElementById('output');
+
+
+
+ myimage2=tf.browser.fromPixels(myimage,1);
+myimage3 = myimage2.reshape([number_of_images,selected_size,selected_size,1]);
+
+
+  var preds = model_loaded.predict(myimage3);//prints the predictions as numbers [0,2,1..]
+
+preds.print();
+const tensorData = preds.dataSync();
+
+
+console.log("tensor data is " + tensorData);
+
+
+
+var class_identifier=0;
+var image_no=0;
+number_of_classes = document.getElementById("number_of_classes").value;
+document.getElementById("model_output").innerHTML="";
+var k =0;
+var i;
+for (i = 0; i < tensorData.length; i++) {
+
+  class_identifier = i % number_of_classes;
+
+if (class_identifier==0){
+  image_no = image_no +1;
+  document.getElementById("model_output").innerHTML=document.getElementById("model_output").innerHTML + "<br><br><b>Model Output for Image#" +image_no +":</b><br><br>"
+}
+
+  document.getElementById("model_output").innerHTML=document.getElementById("model_output").innerHTML + "Class#"+class_identifier+" : " + tensorData[i]+" <br> ";
+}
+
+preds.dispose;
+
+  }
+
+
+</script>
+</body>
+</html>

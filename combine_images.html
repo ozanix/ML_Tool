@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Image Preparation Tool for Machine Learning</title>
+  <h1>Image Preparation Tool for Machine Learning</h1>
+  Complete the steps below. The output of this tool is a text file that contains numeric data representing the combined content of the image files that you selected.<br><br>
+  <!-- Import TensorFlow.js -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.0.0/dist/tf.min.js"></script>
+  <!-- Import tfjs-vis -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-vis@1.0.2/dist/tfjs-vis.umd.min.js"></script>
+  <script type="module" id="script_main" src="script_main_ver2.js"></script>
+  <script type="module" id="data"></script>
+  <style>
+  .Btn {
+    background-color: blue;
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+  }
+
+  .Btn2 {
+    background-color: orange;
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+  }
+  </style>
+
+</head>
+
+<body>
+  The number of images in the data set:
+  <br><input  type="number" STYLE="color: #FFFFFF; background-color: #72A4D2;" id="myText" ><br>
+  The number of training images in the data set:
+  <br><input type="number" STYLE="color: #FFFFFF; background-color: #72A4D2;" id="number_of_training_images" ><br>
+  The resulting image size in pixels:
+  <br><input  type="number" STYLE="color: #FFFFFF; background-color: #72A4D2;" id="selected_size" >
+  <br>
+  The number of classes:
+  <br><input type="number" STYLE="color: #FFFFFF; background-color: #72A4D2;" id="number_of_classes" >
+<p hidden>
+  <br>
+  number_of_images_in_the_class:
+  <br><input type="number" id="number_of_images_in_the_class" value=60>
+</p>
+<br><input hidden type="number" id="number_of_test_images" value=10><br>
+  <br>
+  <p hidden>
+  Enter the starting number (example: if the first file is "image3.png", enter 3):
+  <br><input type="number" id="starting_number" value=1>
+  <br>
+  Enter the file name (example: enter "img" if your files are named like img1.png, img2.png...):
+  <br><input type="text" id="file_name" value="combined/image"><br>
+  Enter the file extension (examples: png, jpg, jpeg):
+  <br><input type="text" id="file_extension" value="jpg"><br>
+</p>
+
+  Select the folder containing the images that will be used in training:
+      <br><input class="Btn" type="file" id="loaded_image_files" onclick="loadImageFiles()" accept=".png, .jpg, .jpeg"
+      webkitdirectory multiple><br>
+      Click below to load the images in the folder that you selected. Once loaded, the images will be shown at the bottom part of this page. Make sure that you scroll down to verify if the correct images were selected.<br>
+    <button class="Btn" onclick="display_selected_images()" >Load Selected Image Files</button><br>
+
+  <button hidden  onclick="myFunction()">Display selected images</button><br>
+  Provide a name for the file that will contain the combined images:
+  <br><input type="text" id="image_data_file_name" value="image-data"><br>
+  When you are done with adding the folders, click below to combine the images into a single file. The file will be downloaded automatically and it will be stored in download folder on your computer.
+  <br><button class="Btn" onclick="combine()">Combine images</button><br>
+Click reset button below, if you want to start over. This will clear all the selections you made.<br>
+  <button class="Btn" onclick="reset()">Reset image selections</button><br>
+  <br>
+After completing the steps above, you can train an ML model using the file generated here. Click below to go to the model training tool.<br>
+<a class="Btn2" href="train_start.html">Train ML Model!</a> <br>
+
+    <p hidden>
+  Enter the class names seperated with commas (example: classname1,classname2,classname3...):
+  <br><input type="text" id="class_names" value="1,2,3,4,5,6,7,8">
+  <br>
+
+  Select a File to Load:
+  		<br><input type="file" id="fileToLoad"><br>
+  	<button class="Btn" onclick="loadFileAsText()">Load Selected File</button><br>
+    Enter avalue for epochs:
+    <br><input type="number" id="epochs_value" value="10">
+    <br>
+
+
+<button class="Btn" id="finalize_parameters" onclick="finalize_parameters()">finalize parameters</button><br>
+    <button class="Btn" id="training_started">Train the model</button>
+  </p>
+  <br>Last image in the data set will be displayed below:<br>
+  <canvas class="result" id="output_image" height=60 width=60 ></canvas>
+<br>-------------------<br>
+
+  <br>
+
+  Selected images will be displayed below:<br>
+  <div id="selected_inages_to_be_displayed"></div>
+  <br><br><i>
+  Copyright (2021) Erol Ozan <br>
+  This tool is an open source software licensed under Apache License 2.0.
+  The code is built on TensorFlow JS platform and modified the code provided by TensorFlow JS. </i>
+  <script>
+
+  const queryString = window.location.search;
+
+const urlParams = new URLSearchParams(queryString);
+
+var number_of_images = urlParams.get('number_of_images')
+
+var number_of_classes = urlParams.get('number_of_classes')
+
+var number_of_training_images = urlParams.get('number_of_training_images')
+
+var selected_size = urlParams.get('selected_size')
+
+ document.getElementById("myText").value=  number_of_images;
+document.getElementById("myText").readOnly=true;
+
+
+document.getElementById("number_of_classes").value=number_of_classes;
+document.getElementById("number_of_classes").readOnly=true;
+
+ document.getElementById("number_of_training_images").value=number_of_training_images ;
+document.getElementById("number_of_training_images").readOnly=true;
+
+  document.getElementById("selected_size").value=selected_size ;
+document.getElementById("selected_size").readOnly=true;
+
+
+  starting_number = parseInt(document.getElementById("starting_number").value);
+
+  epochs_value = parseInt(document.getElementById("epochs_value").value);
+
+  var file_extension="jpg";
+
+  var file_name = "image";
+
+  var textFromFileLoaded = "";
+
+  var final_array = [];
+
+  var image_array = [0,1];
+  var file_names = ["",""] ;
+
+function finalize_parameters(){
+
+document.getElementById("data").src = "data_final_ver2.js";
+
+}
+
+  function myFunction(){
+
+  number_of_images = parseInt(document.getElementById("myText").value);
+
+  selected_size = parseInt(document.getElementById("selected_size").value);
+
+  file_name = document.getElementById("file_name").value;
+
+  file_extension = document.getElementById("file_extension").value;
+
+  starting_number = parseInt(document.getElementById("starting_number").value);
+
+  number_of_images_in_the_class= parseInt(document.getElementById("number_of_images_in_the_class").value);
+
+
+  var k;
+
+    for (k = starting_number; k < starting_number+number_of_images_in_the_class; k++){
+
+
+      var btn = document.createElement("img");
+
+       btn.src = file_name + k +"."+ file_extension;
+       btn.id=k;
+       //btn.height = selected_size;
+       //btn.width = selected_size;
+       document.body.appendChild(btn);
+    }
+  }
+
+  function display_selected_images(){
+
+  selected_size = parseInt(document.getElementById("selected_size").value);
+
+var numm = 0;
+  var k;
+    for (k = 0; k < file_names.length; k++){
+
+
+      var btn = document.createElement("img");
+      var idxDot = file_names[k].lastIndexOf(".") + 1;
+              var extFile = file_names[k].substr(idxDot, file_names[k].length).toLowerCase();
+              if (extFile=="jpg" || extFile=="jpeg" || extFile=="png"){
+                  //TO DO
+
+                  btn.src = file_names[k];
+                  btn.id=k+1;
+                  //btn.height = selected_size;
+                  //btn.width = selected_size;
+                  document.body.appendChild(btn);
+                  numm = numm +1;
+
+              }else{
+                  console.log("a non-image file is found in the folder");
+
+              }
+
+console.log ("number of images added =", numm);
+
+  }
+  }
+  function loadFileAsText()
+  {
+  var fileToLoad = document.getElementById("fileToLoad").files[0];
+
+  	var fileReader = new FileReader();
+  	fileReader.onload = function(fileLoadedEvent)
+  	{
+  		var textFromFileLoaded = fileLoadedEvent.target.result;
+
+      image_array=	textFromFileLoaded.split(",");
+      console.log(image_array);
+
+  	};
+  	fileReader.readAsText(fileToLoad, "UTF-8");
+
+    }
+    function loadImageFiles()
+    {
+var filesInput = document.getElementById("loaded_image_files");
+
+    filesInput.addEventListener("change", function(event) {
+          var files = event.target.files; //FileList object
+          //var output = document.getElementById("result");
+          for (var i = 0; i < files.length; i++) {
+            var file = files[i];
+            console.log(file.webkitRelativePath);
+            file_names[i]=file.webkitRelativePath;
+
+
+          }
+
+        });
+
+
+      }
+
+
+  function reset(){
+
+    var j;
+    var limit = document.querySelectorAll("img").length;
+    console.log("image length)");
+    console.log(document.querySelectorAll("img").length);
+    var myobj2 = document.querySelectorAll("img");
+    for (j = 0; j < limit; j++) {
+
+
+  var myobj = myobj2[j];
+
+  myobj.remove();
+
+    }
+  }
+
+
+  function combine(){
+    x = document.getElementById("myText").value;
+    number_of_images = parseInt(document.getElementById("myText").value);
+    starting_number = parseInt(document.getElementById("starting_number").value);
+    number_of_classes = parseInt(document.getElementById("number_of_classes").value);
+    selected_size = parseInt(document.getElementById("selected_size").value);
+    number_of_training_images = parseInt(document.getElementById("number_of_training_images").value);
+    y = parseInt(document.getElementById("selected_size").value);
+    selected_size = y;
+
+   var i;
+//var all_images = document.querySelectorAll("img");
+   //img.crossOrigin = '';
+   for (i = 0; i < number_of_images; i++) {
+     let resEle = document.getElementById("output_image");
+     var context = resEle.getContext("2d");
+
+
+  console.log("**********************************");
+
+    var imogo = document.getElementsByTagName("img")[i];
+    console.log(imogo.src);
+
+  context.drawImage(imogo,0,0,imogo.width,imogo.height,0,0,selected_size,selected_size);
+
+
+  imageData=context.getImageData(0, 0, selected_size, selected_size);
+  if (i==0){
+    final_array=Array.from(imageData.data);
+  }
+  else{
+
+  combined_imageData2 = Array.from(imageData.data);
+
+  combined_imageData = final_array;
+
+  final_array = combined_imageData.concat(combined_imageData2);
+  }
+  console.log("looping");
+  }
+
+  image_array = Array.prototype.slice.call(final_array);
+  console.log(image_array);
+
+  var textToWrite = image_array.toString();
+  //textToWrite = textToWrite.replace(/(\r\n|\n|\r)/gm, "");//this eliminates line breaks
+  var textFileAsBlob = new Blob([textToWrite], {type:'text/plain'});
+  var fileNameToSaveAs = "image_data_file.txt";
+  var image_data_file_name=document.getElementById('image_data_file_name').value;
+fileNameToSaveAs = image_data_file_name + ".txt";
+  var downloadLink = document.createElement("a");
+  downloadLink.download = fileNameToSaveAs;
+  downloadLink.innerHTML = "Download File";
+  if (window.webkitURL != null)
+  {
+    downloadLink.href = window.webkitURL.createObjectURL(textFileAsBlob);
+  }
+  else
+  {
+    downloadLink.href = window.URL.createObjectURL(textFileAsBlob);
+    downloadLink.onclick = destroyClickedElement;
+    downloadLink.style.display = "none";
+    document.body.appendChild(downloadLink);
+  }
+  downloadLink.click();
+  }
+
+  </script>
+
+</body>
+</html>

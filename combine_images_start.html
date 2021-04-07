@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Machine Learning Training Tool</title>
+  <style>
+  .Btn {
+    background-color: blue;
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+  }
+  </style>
+</head>
+
+<body>
+  <h1>Image Preparation Tool for Machine Learning</h1>
+  The purpose of this tool to combine a set of images into a single file that will be used to train an ML model.<br><br>
+  Enter the number of images in the data set:
+  <br><input type="number" id="number_of_images" value=180><br>
+  Enter the number of training images in the data set:
+  <br><input type="number" id="number_of_training_images" value=160><br>
+  Enter the resulting image size in pixels:
+  <br><input type="number" id="selected_size" value=40><br>
+  Enter the number of classes:
+  <br><input type="number" id="number_of_classes" value=3>
+  <br>
+  <button class="Btn" onclick="next()">Go to the Next Step</button><br>
+  <br>
+  <br><input hidden type="number" id="number_of_test_images" value=10><br>
+  <br>
+  <i>
+  Copyright (2021) Erol Ozan <br>
+  This tool is an open source software licensed under Apache License 2.0.
+  The code is built on TensorFlow JS platform and modified the code provided by TensorFlow JS. </i>
+
+
+<script>
+function next(){
+ number_of_images=document.getElementById("number_of_images").value;
+number_of_classes=document.getElementById("number_of_classes").value;
+ number_of_training_images=document.getElementById("number_of_training_images").value ;
+  selected_size=document.getElementById("selected_size").value ;
+  var str = "combine_images.html?number_of_images=" +number_of_images + "&number_of_classes=" + number_of_classes + "&number_of_training_images=" + number_of_training_images + "&selected_size=" + selected_size;
+window.open( str, "_self");
+
+}
+</script>
+</body>
+</html>
