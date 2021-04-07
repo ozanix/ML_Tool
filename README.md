@@ -7,6 +7,9 @@ This tool has three main elements:
 
 The three tools (1,2,3) outlined above can be used independently. If you are starting from scratch, you must use the tools in the order they are presented above (1,2,3). Below the workflow is explained.
 
+# Project Demo
+Some of the functionality of this tool can be tried at the demo site located at https://www.vissou.net/ml . Please keep in mind that you have to store the project files on your hard disk and then run them using a local server to try all the functions included in this tool set.
+
 # Step 1 Prepare your training images
 The workflow is typically start with preparing your images to feed them to the ML training module. Since you will be using a large number of image files, it is beneficial to combine all images within a single file. The tool provided in this project facilitates this process. It allows you to select individual folders that contain your image files.
 First you must decide how many classes you will have in your project. For example, if you want to create a model that classifies images into cat and dog images, you will have two classes. In that case, create two seperate folders titled as "cats" and "dogs" (or any name you like). Each folder has to have equal number of image files. In other words, you have to provide equal number of each classes. 
