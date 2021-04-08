@@ -312,7 +312,7 @@ console.log("**********************");
         console.log("this.trainLabels");
         console.log(this.trainLabels);
     this.testLabels =
-        this.datasetLabels.slice(number_of_classes * number_of_test_images);
+        this.datasetLabels.slice(0, number_of_classes * number_of_test_images);
         console.log("this.testLabels");
         console.log(this.testLabels);
 
