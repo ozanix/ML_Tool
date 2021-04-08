@@ -31,7 +31,7 @@ Now that you have a working model, you can start using it. This page ("predict_i
 This project builds on the code provided by TensorFlow.js platform. I have used one of their examples as a starting point. That example code (see https://www.tensorflow.org/js/tutorials/training/handwritten_digit_cnn) did not provide a simple way to feed the custom images into the system so I have created a utility to facilitates that step. I have also made considerable amount of modifications in their code and added user interface elements to modify the model parameters etc. At the moment, the model architecture is fixed. However, I have plans to add a functionality that enables users to customize the model architecture. The existing model architecture works well for most image claassification tasks so the tool has usefulness for many ML development projects.
 
 # About Erol Ozan, the author
-I am an associate professor at East Carolina University. My research agenda is focused on AI application development and intelligent transportation sstems (ITS).
+I am an associate professor at East Carolina University. My research agenda is focused on AI application development and intelligent transportation systems (ITS).
 
 
 
