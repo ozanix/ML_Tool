@@ -1,4 +1,6 @@
 /**
+----This is modified version of the original code licensed as below---
+----Modifications made by Erol Ozan-----------------------------------
  * @license
  * Copyright 2018 Google LLC. All Rights Reserved.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -312,7 +314,7 @@ console.log("**********************");
         console.log("this.trainLabels");
         console.log(this.trainLabels);
     this.testLabels =
-        this.datasetLabels.slice(0, number_of_classes * number_of_test_images);
+        this.datasetLabels.slice(number_of_classes * number_of_test_images);
         console.log("this.testLabels");
         console.log(this.testLabels);
 
@@ -328,7 +330,8 @@ console.log("**********************");
   }
 
   nextTestBatch(batchSize) {
-    return this.nextBatch(batchSize, [this.testImages, this.testLabels], () => {
+    return this.nextBatch(
+      batchSize, [this.testImages, this.testLabels], () => {
       this.shuffledTestIndex =
           (this.shuffledTestIndex + 1) % this.testIndices.length;
       return this.testIndices[this.shuffledTestIndex];
