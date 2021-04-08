@@ -40,7 +40,7 @@ async function showExamples(data) {
   const surface =
     tfvis.visor().surface({ name: 'Input Data Examples', tab: 'Input Data'});
 
-  const examples = data.nextTrainBatch(20);
+  const examples = data.nextTrainBatch(number_of_test_images);
 
   const numExamples = examples.xs.shape[0];
 
@@ -206,8 +206,7 @@ const TEST_DATA_SIZE = number_of_test_images;
 
 
   const [testXs, testYs] = tf.tidy(() => {
-    const d = data.nextTestBatch(TEST_DATA_SIZE);
-
+    const d = data.nextTestBatch(TEST_DATA_SIZE);//original is nextTestBatch
     return [
       d.xs.reshape([TEST_DATA_SIZE, selected_size, selected_size, 1]),
       d.labels
@@ -233,7 +232,7 @@ str = document.getElementById("class_names").value;
 function doPrediction(model, data, testDataSize = number_of_test_images) {
   const IMAGE_WIDTH = parseInt(document.getElementById("selected_size").value);
   const IMAGE_HEIGHT = parseInt(document.getElementById("selected_size").value);
-  const testData = data.nextTestBatch(testDataSize);
+  const testData = data.nextTrainBatch(testDataSize);//nextTestBatch is oriiginal
   const testxs = testData.xs.reshape([testDataSize, selected_size, selected_size, 1]);
   const labels = testData.labels.argMax(-1);
     console.log("testxs");
