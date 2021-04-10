@@ -33,7 +33,7 @@ This project builds on the code provided by TensorFlow.js platform. I have used 
 # About Erol Ozan, the author
 I am an associate professor at East Carolina University. My research agenda is focused on AI application development and intelligent transportation systems (ITS).
 
-#License
+# License
 MIT License.
 
 
